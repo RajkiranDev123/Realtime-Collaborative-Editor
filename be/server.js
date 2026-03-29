@@ -3,10 +3,19 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import { YSocketIO } from "y-socket.io/dist/server";
 
+// Express is built only for HTTP request–response
+// WebSockets need connection upgrade, which Express doesn’t handle
+// Upgrade is needed to switch from one-time HTTP (request–response) to a 
+// persistent WebSocket connection (real-time, bidirectional communication).
+
 const app = express();
 
+//HTTP server receives request & Passes it to Express
 const httpServer = createServer(app);
 
+//now , Socket.IO is listening on SAME server
+//http://localhost:3000  → Express
+//ws://localhost:3000   → Socket.IO
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
