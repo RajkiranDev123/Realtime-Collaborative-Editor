@@ -1,0 +1,54 @@
+PS C:\Users\HP\OneDrive\Desktop\AI\clones\rtce\fe> npm create vite@7
+Need to install the following packages:
+create-vite@7.1.3
+Ok to proceed? (y) y
+
+
+> npx
+> cva
+
+│
+◇  Project name:
+│  .
+│
+◇  Select a framework:
+│  React
+│
+◇  Select a variant:
+│  JavaScript
+│
+◇  Scaffolding project in C:\Users\HP\OneDrive\Desktop\AI\clones\rtce\fe...
+│
+└  Done. Now run:
+
+  npm install
+  npm run dev
+
+PS C:\Users\HP\OneDrive\Desktop\AI\clones\rtce\fe> npm i
+
+-----------------------------------------------------------------------------------------------------
+
+npm i tailwindcss @tailwindcss/vite
+
+////////////////////////////////////
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from "@tailwindcss/vite"
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(),tailwindcss()],
+})
+
+----------------------------------
+
+App.css ==> @import "tailwindcss"
+
+------------------------------------
+
+npm i @monaco-editor/react
+
+
+------------------------------------
+
