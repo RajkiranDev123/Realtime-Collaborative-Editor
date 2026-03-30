@@ -52,3 +52,5 @@ npm i @monaco-editor/react
 
 ------------------------------------
 
+npm i y-monaco y-socket.io yjs
+
