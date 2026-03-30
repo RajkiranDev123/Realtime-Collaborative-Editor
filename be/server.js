@@ -2,6 +2,8 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { YSocketIO } from "y-socket.io/dist/server";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Express is built only for HTTP request–response
 // WebSockets need connection upgrade, which Express doesn’t handle
@@ -37,6 +39,6 @@ app.get("/", (req, res) => {
   });
 });
 
-httpServer.listen(3000, () => {
-  console.log(`server running on port`);
+httpServer.listen(process.env.PORT, () => {
+  console.log(`server running on port ${process.env.PORT}`);
 });

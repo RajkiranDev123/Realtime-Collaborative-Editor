@@ -1,6 +1,7 @@
  npm init -y 
  npm i express socket.io y-socket.io
  npm i --save-dev nodemon
+ npm i dotenv
 
  ---------------------------------
 
