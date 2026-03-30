@@ -24,7 +24,7 @@ function App() {
     if (!username) return;
 
     const provider = new SocketIOProvider(
-      "http://localhost:3000",
+      import.meta.env.VITE_API_URL,
       "monaco",
       ydoc,
       { autoConnect: true },
@@ -38,7 +38,7 @@ function App() {
       setUsers(
         states
           .filter((state) => state.user && state.user.username)
-          .map((state) => state.user)
+          .map((state) => state.user),
       );
     };
 
@@ -105,25 +105,23 @@ function App() {
   return (
     <main className="h-screen w-full bg-gray-950 text-white flex flex-col md:flex-row gap-4 p-4">
       {/* Mobile toggle button */}
-     <div className="md:hidden fixed top-4 right-4 z-50">
-  <button
-    className="flex items-center space-x-1 px-2  bg-gradient-to-r from-blue-600 to-teal-500 text-sm
+      <div className="md:hidden fixed top-4 right-4 z-50">
+        <button
+          className="flex items-center space-x-1 px-2  bg-gradient-to-r from-blue-600 to-teal-500 text-sm
                text-white font-semibold rounded-md shadow-lg hover:scale-105 transform transition-all"
-    onClick={() => setSidebarOpen(!sidebarOpen)}
-  >
-    {sidebarOpen ? (
-      <>
-    
-        <span>Hide Users</span>
-      </>
-    ) : (
-      <>
-   
-        <span>Show Users</span>
-      </>
-    )}
-  </button>
-</div>
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? (
+            <>
+              <span>Hide Users</span>
+            </>
+          ) : (
+            <>
+              <span>Show Users</span>
+            </>
+          )}
+        </button>
+      </div>
 
       {/* Sidebar */}
       {(sidebarOpen || window.innerWidth >= 768) && (
@@ -138,8 +136,10 @@ function App() {
                 className="flex items-center p-3 bg-gray-100 text-gray-800 rounded-lg
                    hover:bg-gray-200 transition-colors duration-200"
               >
-                <span className="inline-flex items-center justify-center w-7 h-7 bg-blue-500
-                   text-white rounded-full mr-3 font-medium text-sm">
+                <span
+                  className="inline-flex items-center justify-center w-7 h-7 bg-blue-500
+                   text-white rounded-full mr-3 font-medium text-sm"
+                >
                   {user.username[0].toUpperCase()}
                 </span>
                 {user.username}
