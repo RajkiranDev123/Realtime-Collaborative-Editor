@@ -1,16 +1,12 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { Editor } from "@monaco-editor/react";
 import * as Y from "yjs"; // internal engine
 import { MonacoBinding } from "y-monaco"; //Monaco Editor & Yjs = shared data (CRDT) , MonacoBinding connects both
 import { SocketIOProvider } from "y-socket.io"; // y-socket.io = communication + smart collaboration (Yjs)
 // Socket.IO = just communication
-// y = just a name (from Yjs ecosystem) :
-// whole ecosystem of tools to make real-time collaboration easy.
-// The “brain” of the system
-// Provides:
-// Shared documents
-// Conflict-free merges (CRDT)
-// Maps, Arrays, Text for collaborative editing
+// y = just a name (from Yjs ecosystem) , yjs ==> connects multiple clients
+// whole ecosystem of tools to make real-time collaboration easy : The “brain” of the system
+// Provides: Shared documents , Conflict-free merges (CRDT) , Maps, Arrays, Text for collaborative editing
 
 import "./App.css";
 
@@ -20,6 +16,8 @@ function App() {
   });
   const editorRef = useRef(null);
 
+  const [users, setUsers] = useState([]);
+
   const ydoc = useMemo(() => new Y.Doc(), []); // all codes are stored here , Keeping all changes in a single ydoc object
   const yText = useMemo(() => ydoc.getText("monaco"), [ydoc]);
   // React re-renders frequently , Yjs objects must persist across renders , useMemo keeps ydoc and yText references stable
@@ -28,14 +26,6 @@ function App() {
   const handleMount = (editor) => {
     editorRef.current = editor;
 
-    const provider = new SocketIOProvider(
-      "http://localhost:3000",
-      "monaco",
-      ydoc,
-      {
-        autoConnect: true,
-      },
-    );
     const monacoBinding = new MonacoBinding(
       yText,
       editorRef.current.getModel(),
@@ -61,14 +51,19 @@ function App() {
             <p className="text-gray-300 text-lg font-semibold text-center">
               Real-Time Collaborative Editor
             </p>
+            {!username && (
+              <p className="text-sm mt-4 text-white">
+                * Name is mandatory for joining!
+              </p>
+            )}
+
             <input
               type="text"
               placeholder="Enter your name..."
               name="username"
               className="p-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             />
-            {!username && <p className="text-sm text-white">* Name is mandatory for joining!</p>}
-            <button className="p-3 rounded-lg bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold hover:from-teal-500 hover:to-blue-600 transition-colors shadow-md">
+            <button className="p-3 mt-4 rounded-lg bg-gradient-to-r from-blue-600 to-teal-500 text-white font-bold hover:from-teal-500 hover:to-blue-600 transition-colors shadow-md">
               Join
             </button>
           </form>
@@ -77,13 +72,61 @@ function App() {
     );
   }
 
+  useEffect(() => {
+    if (username && editorRef.current) {
+      const provider = new SocketIOProvider(
+        "http://localhost:3000",
+        "monaco",
+        ydoc,
+        {
+          autoConnect: true,
+        },
+      );
+      provider.awareness.setLocalStateField("user", { username }); //set my info
+      provider.awareness.on("change", () => {
+        const states = Array.from(provider.awareness.getStates().values());
+        setUsers(
+          states
+            .filter((user) => user && user.username)
+            .map((state) => state.user),
+        );
+      }); // react to any changes and set
+
+      function handleBeforeUnload() {
+        provider.awareness.setLocalStateField("user", null);
+      }
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+        provider.disconnect();
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }
+  }, [editorRef.current, username]);
+
   return (
     <>
       {/*   overflow-hidden : Hide anything that goes outside the element’s box , Image/etc stays inside border radius.
        */}
       {/* w-1/4 is 25 % and 3/4 is 75 % */}
       <main className="h-screen w-full bg-gray-950 text-white flex gap-4 p-4">
-        <aside className="h-full w-1/4 bg-amber-50 rounded-lg"></aside>
+        <aside className="h-full w-1/4 bg-amber-50 rounded-lg">
+          <h2 className="text-2xl font-bold p-4 border-b border-gray-300">
+            Users
+          </h2>
+
+          <ul className="p-4">
+            {users.map((user, index) => {
+              <li
+                key={index}
+                className="p-2 bg-gray-800 text-white rounded mb-2"
+              >
+                {user.username}
+              </li>;
+            })}
+          </ul>
+        </aside>
         {/* section */}
         <section className="w-3/4 bg-neutral-800 rounded-lg overflow-hidden">
           <Editor
